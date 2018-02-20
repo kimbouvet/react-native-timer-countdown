@@ -4,7 +4,7 @@ A customizable countdown component for React Native.
 ## Install
 
 ```sh
-npm install --save react-native-timer-countdown`
+npm install --save react-native-timer-countdown
 ```
 
 or
@@ -22,7 +22,7 @@ render() {
     return (
         <TimerCountdown
             initialSecondsRemaining={360}
-            onTick={() => console.log('tick')}
+            onTick={secondsRemaining => console.log('tick', secondsRemaining)}
             onTimeElapsed={() => console.log('complete')}
             allowFontScaling={true}
             style={{ fontSize: 20 }}
@@ -39,7 +39,7 @@ render() {
 | allowFontScaling | to allow font scaling | bool |  | false |
 | style | The custom styling which will be applied to the Text component | style |  |  |
 | formatSecondsRemaining | A function that formats the secondsRemaining | func | | |
-| onTick | A function to call each tick | func | | |
+| onTick | A function to call each tick. It returns the remaining seconds. | func | | |
 | onTimeElapsed | A function to call when the countdown completes | func |  | |
 
 ## Author
