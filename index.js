@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Text, View, ViewPropTypes as RNViewPropTypes } from 'react-native';
+import { Text, View, StyleSheet, ViewPropTypes as RNViewPropTypes } from 'react-native';
 const ViewPropTypes = RNViewPropTypes || View.propTypes;
 
 /**
@@ -23,7 +23,6 @@ export default class TimerCountdown extends React.Component {
     this.mounted = false;
 
     this.tick = this.tick.bind(this);
-    this.getFormattedTime = this.getFormattedTime.bind(this);
   }
 
   componentDidMount() {
@@ -82,41 +81,105 @@ export default class TimerCountdown extends React.Component {
     }
   }
 
-  getFormattedTime(milliseconds) {
+  getFormatetHours = (milliseconds) => {
     if (this.props.formatSecondsRemaining) {
       return this.props.formatSecondsRemaining(milliseconds);
     }
 
     const totalSeconds = Math.round(milliseconds / 1000);
-
-    let seconds = parseInt(totalSeconds % 60, 10);
-    let minutes = parseInt(totalSeconds / 60, 10) % 60;
     let hours = parseInt(totalSeconds / 3600, 10);
 
-    seconds = seconds < 10 ? '0' + seconds : seconds;
-    minutes = minutes < 10 ? '0' + minutes : minutes;
     hours = hours < 10 ? '0' + hours : hours;
 
-    hours = hours === '00' ? '' : hours + ':';
+    return hours;
+  }
 
-    return hours + minutes + ':' + seconds;
+  getFormatetMinutes = (milliseconds) => {
+    if (this.props.formatSecondsRemaining) {
+      return this.props.formatSecondsRemaining(milliseconds);
+    }
+
+    const totalSeconds = Math.round(milliseconds / 1000);
+    let minutes = parseInt(totalSeconds / 60, 10) % 60;
+
+    minutes = minutes < 10 ? '0' + minutes : minutes;
+
+    return minutes;
+  }
+
+  getFormatetSeconds = (milliseconds) => {
+    if (this.props.formatSecondsRemaining) {
+      return this.props.formatSecondsRemaining(milliseconds);
+    }
+
+    const totalSeconds = Math.round(milliseconds / 1000);
+    let seconds = parseInt(totalSeconds % 60, 10)
+
+    seconds = seconds < 10 ? '0' + seconds : seconds;
+
+    return seconds;
+  }
+
+  renderDivider() {
+    return(<Text style={styles.divider}>:</Text>)
+  }
+
+  renderSegment(time, label) {
+    return (
+    <View style={styles.segment}>
+      <Text          
+        allowFontScaling={this.props.allowFontScaling}
+        style={this.props.style}>
+        {time}
+      </Text>
+      <Text        
+        allowFontScaling={this.props.allowFontScaling}
+        style={[this.props.style, styles.label]}>
+        {label}
+      </Text>
+    </View>
+    );
   }
 
   render() {
+    const { hoursLabel, minutesLabel, secondsLabel } = this.props;
     const secondsRemaining = this.state.secondsRemaining;
     return (
-      <Text
-        allowFontScaling={this.props.allowFontScaling}
-        style={this.props.style}
-      >
-        {this.getFormattedTime(secondsRemaining)}
-      </Text>
+      <View style={styles.container}>
+        {this.renderSegment(this.getFormatetHours(secondsRemaining), hoursLabel.toUpperCase())}
+        {this.renderDivider()}
+        {this.renderSegment(this.getFormatetMinutes(secondsRemaining), minutesLabel.toUpperCase())}
+        {this.renderDivider()}
+        {this.renderSegment(this.getFormatetSeconds(secondsRemaining), secondsLabel.toUpperCase())}
+      </View>
     );
   }
 }
 
+const styles = StyleSheet.create({
+  container: {
+    flexDirection: 'row',
+  },
+  segment: {
+    paddingHorizontal: 4,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  divider: {
+    paddingHorizontal: 4,
+  },
+  label: {
+    paddingHorizontal: 4,
+    fontSize: 8,
+    lineHeight: 11
+  }
+});
+
 TimerCountdown.defaultProps = {
   interval: 1000,
+  hoursLabel: 'hour',
+  minutesLabel: 'sec',
+  secondsLabel: 'min',
   formatSecondsRemaining: null,
   onTick: null,
   onTimeElapsed: null,
@@ -127,6 +190,9 @@ TimerCountdown.defaultProps = {
 TimerCountdown.propTypes = {
   initialSecondsRemaining: PropTypes.number.isRequired,
   interval: PropTypes.number,
+  hoursLabel: PropTypes.string,
+  minutesLabel: PropTypes.string,
+  secondsLabel: PropTypes.string,
   formatSecondsRemaining: PropTypes.func,
   onTick: PropTypes.func,
   onTimeElapsed: PropTypes.func,
